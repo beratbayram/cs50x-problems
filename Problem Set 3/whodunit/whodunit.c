@@ -1,4 +1,15 @@
-// Copies a BMP file
+/**
+ * @file            whodunit.c
+ * @brief           Solves clue.bmp puzzle
+ * @author          Berat BAYRAM
+ * @date            27 September 2020
+ * 
+ * @param infile    bmp image to be solved
+ * @param ourfile   solved image file
+ * 
+ * @warning         Line 85 should be reviewed for different type of clue files
+ * @note            Forked from Harvard University CS50 team's copy.c
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,11 +46,9 @@ int main(int argc, char *argv[])
         return 3;
     }
 
-    // read infile's BITMAPFILEHEADER
+    // read infile's headers
     BITMAPFILEHEADER bf;
     fread(&bf, sizeof(BITMAPFILEHEADER), 1, inptr);
-
-    // read infile's BITMAPINFOHEADER
     BITMAPINFOHEADER bi;
     fread(&bi, sizeof(BITMAPINFOHEADER), 1, inptr);
 
@@ -53,10 +62,8 @@ int main(int argc, char *argv[])
         return 4;
     }
 
-    // write outfile's BITMAPFILEHEADER
+    // write outfile's headers
     fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
-
-    // write outfile's BITMAPINFOHEADER
     fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
 
     // determine padding for scanlines
@@ -74,12 +81,14 @@ int main(int argc, char *argv[])
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
 
+            // clue solver filter (rewrite this part according to clue)
             if (triple.rgbtRed >= 250)
             {
                 triple.rgbtRed = 0x00;
                 triple.rgbtBlue = 0x00;
                 triple.rgbtGreen = 0x00;
             }
+
             // write RGB triple to outfile
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
         }
@@ -89,15 +98,11 @@ int main(int argc, char *argv[])
 
         // then add it back (to demonstrate how)
         for (int k = 0; k < padding; k++)
-        {
             fputc(0x00, outptr);
-        }
     }
 
-    // close infile
+    // close files
     fclose(inptr);
-
-    // close outfile
     fclose(outptr);
 
     // success
