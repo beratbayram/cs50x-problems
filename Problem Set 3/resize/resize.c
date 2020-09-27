@@ -1,13 +1,20 @@
-/*
- * Scales up a bmp image
+/**
+ * @file            resize.c
+ * @brief           Scales up a bmp image by factor n
+ * @author          Berat BAYRAM
+ * @date            27 September 2020
  * 
+ * @param n         Positive integer which is the scale factor of the image
+ * @param infile    bmp image to be scaled
+ * @param ourfile   Output file
  * 
- * 
+ * @warning         Only up-scaling from 24-bit uncompressed BMP 4.0 files are 
+ *                  supported
+ * @note            Forked from Harvard University CS50 team's copy.c
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "bmp.h"
 
@@ -20,26 +27,26 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    //	is second arguement	an	integer
-    for (int i = 0, n = strlen(argv[1]); i < n; i++)
+    //	is second arguement	an integer ?
+    for (int i = 0; argv[1][i] != '\0'; i++)
     {
         if (argv[1][i] < '0' && '9' < argv[1][i])
         {
-            fprintf(stderr, "n must be an integer");
+            fprintf(stderr, "n must be an positive integer\n");
             return 1;
         }
     }
 
     //match args
     int factor = atoi(argv[1]);
-    char *infile = argv[2];
-    char *outfile = argv[3];
 
     if (factor < 1)
     {
-        fprintf(stderr, "n must be an integer");
+        fprintf(stderr, "n must be an positive integer\n");
         return 1;
     }
+    char *infile = argv[2];
+    char *outfile = argv[3];
 
     // open input file
     FILE *inptr = fopen(infile, "r");
@@ -84,11 +91,13 @@ int main(int argc, char *argv[])
     int paddingIn = (4 - (widthIn * sizeof(RGBTRIPLE)) % 4) % 4;
     int paddingOut = (4 - (widthOut * sizeof(RGBTRIPLE)) % 4) % 4;
 
-    //update header values
+    //update header values for new output
     bi.biWidth = widthOut;
     bi.biHeight = heightOut;
-    bi.biSizeImage = (bi.biWidth * sizeof(RGBTRIPLE) + paddingOut) * abs(bi.biHeight);
-    bf.bfSize = bi.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
+    bi.biSizeImage = (bi.biWidth * sizeof(RGBTRIPLE) + paddingOut) *
+                     abs(bi.biHeight);
+    bf.bfSize = bi.biSizeImage +
+                sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 
     // write outfile's headers
     fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
